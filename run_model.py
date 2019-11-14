@@ -1,29 +1,16 @@
-from tensorflow import keras
+import tensorflow as tf
+import pandas
+import matplotlib as plt
+import seaborn as sns
 import data_access
-from keras.utils import to_categorical
+import keras
 import argparse
+import numpy as np
+from sklearn import metrics
 
-def build_confusion_matrix(predict, y, count):
-
-    predict = list(map(np.argmax, predict) )
-    y = list(map(np.argmax, y) )
-    matrix = tensorflow.math.confusion_matrix(labels=y, predictions=predict).numpy()
-    matrix = np.around(matrix.astype('float') / matrix.sum(axis=1)[:, np.newaxis], decimals=2)
-
-    columns = []
-    for i in range(0, count):
-        columns.append(i)
-
-    frame = pandas.DataFrame(matrix,
-                         index = columns,
-                         columns = columns)
-
-    seaborn.heatmap(frame, annot=True,cmap=matplotlib.pyplot.cm.Blues)
-    matplotlib.pyplot.tight_layout()
-    matplotlib.pyplot.ylabel('True label')
-    matplotlib.pyplot.xlabel('Predicted label')
-    matplotlib.pyplot.show()
-
+def build_confusion_matrix(y_pred, y_test):
+    matrix = metrics.confusion_matrix(y_test.argmax(axis=1), y_pred.argmax(axis=1))
+    print(matrix)
 
 
 if __name__ == '__main__':
@@ -39,18 +26,13 @@ if __name__ == '__main__':
     if use_custom_images_arg:
         (X_test, Y_test) = data_access.load_custom_images()
     else:
-        print("RYAAAAAAAAAAAAAAAAAAAAAAAA")
         (X_train, Y_train), (X_test, Y_test) = data_access.load_mnist_data()
 
-    print('4=========++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++=====')
     score = model.evaluate(X_test, Y_test)
     print('Test score:', score[0])
     print('Test accuracy:', score[1])
 
-    print('5========++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++======')
     predict = model.predict(X_test)
-    print('6=======++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++=====')
     data_access.save_result(predict, Y_test)
-    print('7=======++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++======')
     if build_confusion_matrix_arg:
-        build_confusion_matrix(predict, Y_test, 10)
+        build_confusion_matrix(predict, Y_test)
