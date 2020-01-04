@@ -76,9 +76,7 @@ def load_custom_images():
         X_test.append(imgarr)
         Y_test.append(int(file.split('.')[0]))
         count = count + 1
-    print(X_test)
     X_test =  np.array(X_test)
-    print(X_test)
     X_test = X_test.reshape(len(X_test), 28, 28, 1)
     X_test = X_test.astype('float32')
     X_test /= 255
